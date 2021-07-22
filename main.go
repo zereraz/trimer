@@ -1,6 +1,7 @@
 package main
 
 import (
+	"strings"
 	"time"
 
 	"github.com/getlantern/systray"
@@ -65,7 +66,28 @@ func (t *Timer) stopTimer() {
 }
 
 func (t *Timer) setTitle(s string) {
-	systray.SetTitle(s)
+	n := len(s)
+	const max = 12
+
+	if n < max {
+		var buf [max]byte
+		isEven := (n % 2) == 0
+		diff := max - n
+		var padding string
+		if isEven {
+			padding = strings.Repeat(" ", diff/2)
+		} else {
+			padding = strings.Repeat(" ", (diff-1)/2)
+		}
+		m := len(padding)
+		copy(buf[:m], padding)
+		copy(buf[m:n+m], s)
+		copy(buf[m+n:], padding)
+
+		systray.SetTitle(string(buf[:]))
+	} else {
+		systray.SetTitle(s)
+	}
 }
 
 func beautifyTime(d time.Duration) string {
